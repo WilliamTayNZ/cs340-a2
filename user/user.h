@@ -18,12 +18,14 @@ int unlink(const char*);
 int fstat(int fd, struct stat*);
 int link(const char*, const char*);
 int mkdir(const char*);
-int chdir(const char*);
+int chdir(const char*
+});
 int dup(int);
 int getpid(void);
 char* sys_sbrk(int,int);
 int pause(int);
 int uptime(void);
+int getusedmem(void);
 
 // ulib.c
 int stat(const char*, struct stat*);

@@ -41,7 +41,7 @@ sys_sbrk(void)
 {
   uint64 addr;
   int t;
-  int n;
+  int n;sys_
 
   argint(0, &n);
   argint(1, &t);
@@ -145,4 +145,10 @@ sys_waitx(void)
   argaddr(2, &stime_addr);
 
   return kwaitx(addr, rtime_addr, stime_addr);
+}
+
+uint64
+sys_getusedmem(void)
+{
+  return walk_used(kernel_pagetable) * PGSIZE;
 }
