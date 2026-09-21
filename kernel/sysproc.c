@@ -41,7 +41,7 @@ sys_sbrk(void)
 {
   uint64 addr;
   int t;
-  int n;sys_
+  int n;
 
   argint(0, &n);
   argint(1, &t);
