@@ -152,3 +152,61 @@ sys_getusedmem(void)
 {
   return walk_used(kernel_pagetable) * PGSIZE;
 }
+
+
+uint64
+sys_mprotect(void)
+{
+  // Get passed virtual address 
+  uint64 va;
+  argaddr(0, &va);
+
+  pte_t *pte;
+  struct proc *myp = myproc(); /* process making the syscall */
+
+  if(va >= MAXVA)
+    return -1;
+
+  // Check this is a valid and user-accessible PTE
+  pte = walk(myp->pagetable, va, 0);
+  if(pte == 0)
+    return -1;
+  if((*pte & PTE_V) == 0)
+    return -1;
+  if((*pte & PTE_U) == 0)
+    return -1;
+
+  // Set write flag to 0
+  *pte &= ~PTE_W;
+  sfence_vma(); // Flush TLB to apply changes
+  return 0;
+}
+
+uint64
+sys_munprotect(void)
+{
+  // Get passed virtual address
+  uint64 va;
+  argaddr(0, &va);
+
+  pte_t *pte;
+  struct proc *myp = myproc(); /* process making the syscall */
+
+  if (va >= MAXVA) {
+    return -1;
+  }
+
+  // Check this is a valid and user-accessible PTE
+  pte = walk(myp->pagetable, va, 0);
+  if(pte==0)
+    return -1;
+  if((*pte & PTE_V) == 0) 
+    return -1;
+  if ((*pte & PTE_U) == 0)
+    return -1;
+
+  // Set write flag to 1
+  *pte |= PTE_W;
+  sfence_vma(); // Flush TLB to apply changes
+  return 0;
+}
