@@ -161,25 +161,7 @@ sys_mprotect(void)
   uint64 va;
   argaddr(0, &va);
 
-  pte_t *pte;
-  struct proc *myp = myproc(); /* process making the syscall */
-
-  if(va >= MAXVA)
-    return -1;
-
-  // Check this is a valid and user-accessible PTE
-  pte = walk(myp->pagetable, va, 0);
-  if(pte == 0)
-    return -1;
-  if((*pte & PTE_V) == 0)
-    return -1;
-  if((*pte & PTE_U) == 0)
-    return -1;
-
-  // Set write flag to 0
-  *pte &= ~PTE_W;
-  sfence_vma(); // Flush TLB to apply changes
-  return 0;
+  return vm_mprotect(myproc()->pagetable, va);
 }
 
 uint64
@@ -189,24 +171,5 @@ sys_munprotect(void)
   uint64 va;
   argaddr(0, &va);
 
-  pte_t *pte;
-  struct proc *myp = myproc(); /* process making the syscall */
-
-  if (va >= MAXVA) {
-    return -1;
-  }
-
-  // Check this is a valid and user-accessible PTE
-  pte = walk(myp->pagetable, va, 0);
-  if(pte==0)
-    return -1;
-  if((*pte & PTE_V) == 0) 
-    return -1;
-  if ((*pte & PTE_U) == 0)
-    return -1;
-
-  // Set write flag to 1
-  *pte |= PTE_W;
-  sfence_vma(); // Flush TLB to apply changes
-  return 0;
+  return vm_munprotect(myproc()->pagetable, va);
 }

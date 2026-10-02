@@ -510,3 +510,50 @@ ismapped(pagetable_t pagetable, uint64 va)
   }
   return 0;
 }
+
+uint64
+vm_mprotect(pagetable_t pagetable, uint64 va)
+{
+  pte_t *pte;
+
+  if(va >= MAXVA)
+    return -1;
+
+  // Check this is a valid and user-accessible PTE
+  pte = walk(pagetable, va, 0);
+  if(pte == 0)
+    return -1;
+  if((*pte & PTE_V) == 0)
+    return -1;
+  if((*pte & PTE_U) == 0)
+    return -1;
+
+  // Set write flag to 0
+  *pte &= ~PTE_W;
+  sfence_vma(); // Flush TLB to apply changes
+  return 0;
+}
+
+uint64
+vm_munprotect(pagetable_t pagetable, uint64 va)
+{
+  pte_t *pte;
+
+  if (va >= MAXVA) {
+    return -1;
+  }
+
+  // Check this is a valid and user-accessible PTE
+  pte = walk(pagetable, va, 0);
+  if(pte==0)
+    return -1;
+  if((*pte & PTE_V) == 0) 
+    return -1;
+  if ((*pte & PTE_U) == 0)
+    return -1;
+
+  // Set write flag to 1
+  *pte |= PTE_W;
+  sfence_vma(); // Flush TLB to apply changes
+  return 0;
+}
