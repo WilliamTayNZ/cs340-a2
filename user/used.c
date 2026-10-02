@@ -11,8 +11,8 @@ adding a user program to xv6.
 #include "user/user.h"
 
 int 
-main(int argc, char* argv) 
+main(int argc, char *argv[]) 
 {
     printf("Used memory: %d bytes\n", getusedmem());
     exit(0);
-};
+}
